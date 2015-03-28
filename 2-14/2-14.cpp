@@ -4,7 +4,7 @@ LinkNode<T> *List<T>::Locate(int i){
 	if(i==0) return first;
 	else if(i>0){
 		int k=0;
-		while(p!=NULL&&k<i){current=current->link;k++;}
+		while(current!=NULL&&k<i){current=current->link;k++;}
 		return current;
 	}
 	else return NULL;
@@ -28,7 +28,7 @@ template<class T>
 int List<T>::Number(T x){
 	int number=0;
 	LinkNode *current=first->link;
-	while(current!=Null){
+	while(current!=NULL){
 		if(current->data==x) number++;
 		current=current->link;
 	}
