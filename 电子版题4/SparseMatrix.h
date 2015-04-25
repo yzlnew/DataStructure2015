@@ -1,91 +1,125 @@
+#include <iostream>
+#include <stdlib.h>
+using namespace std;
 template<class E>
-struct Triple {               //ä¸‰å…ƒç»„ç±»
-     int row, col;	       //éé›¶å…ƒç´ è¡Œå·/åˆ—å·
-     E value;                   //éé›¶å…ƒç´ çš„å€¼
-     Triple<E>& operator = (Triple<E>& R) //ç»“ç‚¹èµ‹å€¼  
-        { row = R.row;  col = R.col;  value = R.value; }
-};			
+struct Triple {               //ÈıÔª×éÀà
+	int row, col;	       //·ÇÁãÔªËØĞĞºÅ/ÁĞºÅ
+	E value;                   //·ÇÁãÔªËØµÄÖµ
+	Triple<E>& operator = (Triple<E>& R) //½áµã¸³Öµ  
+	{
+		row = R.row;  col = R.col;  value = R.value;
+	}
+	//Triple<E>(int r, int c, E v){
+		//row = r; col = c; value = v;
+	//}
+};
 
 template <class E>
 class SparseMatrix {
-public: 
-     SparseMatrix (int Rw , int Cl ,int Tm );                   //æ„é€ å‡½æ•°
-     ~SparseMatrix() {delete []smArray;}  //ææ„å‡½æ•°
-     void Transpose(SparseMatrix<E>& B);    //è½¬ç½®
-     void Multiply (SparseMatrix<E>& A); 
+public:
+	SparseMatrix(int Rw, int Cl, int Tm);                   //¹¹Ôìº¯Êı
+	~SparseMatrix() { delete []smArray; }  //Îö¹¹º¯Êı
+	void Transpose(SparseMatrix<E>& B);    //×ªÖÃ
+	void Multiply(SparseMatrix<E>& b);
+	void initialize(int i, int row, int col, int value){
+		smArray[i].row = row;
+		smArray[i].col = col;
+		smArray[i].value = value;
+	}
+	void display(){
+		for (int j = 0; j<Terms; j++){
+			cout << smArray[j].row << ' '
+				<< smArray[j].col << ' '
+				<< smArray[j].value << ' '
+				<< endl;
+		}
+	}
 private:
-     int Rows, Cols, Terms;        //è¡Œï¼åˆ—ï¼éé›¶å…ƒç´ æ•°
-     Triple<E> *smArray;          //ä¸‰å…ƒç»„è¡¨
-};      
+	int Rows, Cols, Terms;        //ĞĞ£¯ÁĞ£¯·ÇÁãÔªËØÊı
+	Triple<E> *smArray;          //ÈıÔª×é±í
+};
 
 template <class E>
-SparseMatrix<E>::SparseMatrix (int Rw, int Cl, int Tm) {
-    Rows = Rw;   Cols = Cl;   Terms = Tm;
-    smArray = new Triple[Terms];          //ä¸‰å…ƒç»„è¡¨
-    if (smArray == NULL) {
-         cerr << â€œå­˜å‚¨åˆ†é…å¤±è´¥ï¼â€ << endl;  exit(1);
-    }
-};  
+SparseMatrix<E>::SparseMatrix(int Rw, int Cl, int Tm) {
+	Rows = Rw;   Cols = Cl;   Terms = Tm;
+	smArray = new Triple<E>[Terms];          //ÈıÔª×é±í
+	if (smArray == NULL) {
+		cerr << "´æ´¢·ÖÅäÊ§°Ü£¡"<< endl;  exit(1);
+	}
+};
 
 template <class E>
-void SparseMatrix<E>::Transpose (SparseMatrix<E>& B) {
-    int *rowSize = new int[Cols];       //åˆ—å…ƒç´ æ•°æ•°ç»„
-    int *rowStart = new int[Cols];      //è½¬ç½®ä½ç½®æ•°ç»„
-    B.Rows = Cols;   B.Cols = Rows;
-    B.Terms = Terms;
-    if (Terms > 0) {
-        int i, j;
-        for (i = 0; i < Cols; i++) rowSize[i] = 0; 
-	 	for (i = 0; i < Terms; i++)
-            rowSize[smArray[i].col]++; //åŸçŸ©é˜µå„åˆ—éé›¶å…ƒæ•°ï¼
-            rowStart[0] = 0;	
-            for (i = 1; i < Cols; i++)			
-	       	rowStart[i] = rowStart[i-1]+rowSize[i-1];
-	  		for (i = 0; i < Terms; i++) {			
-	       	j = rowStart [smArray[i].col];
-                      //ç¬¬iä¸ªéé›¶å…ƒåœ¨çŸ©é˜µBä¸­åº”æ”¾çš„ä½ç½®	
-	       B.smArray[j].row = smArray[i].col;    //ä¼ é€
-	       B.smArray[j].col = smArray[i].row;
-	       B.smArray[j].value = smArray[i].value;
-	       rowStart [smArray[i].col]++; //ä¿®æ”¹è¯¥è¡Œåº”æ”¾ä½ç½®
-	  }
-
-template <class E>
-void SparseMatrix<E>::Multiply (SparseMatrix<E>& B) {
-    SparseMatrix<E> result(Rows,b.Cols);
-    int rowsize = new int[b.Rows];
-    int rowstart = new int[b.Rows+1];
-    E *temp = new E[b.Cols];
-    int i,current,lastinresult,rowA,colA,colB;
-    for (i=0;i<b.Rows;i++) rowsize[i]=0;
-    for (i=0;i<b.Rows;i++) rowsize[b.smArray[i].row]++;
-        rowstart[0]=0;
-    for (i=0;i<b.Rows;i++)
-        rowstart[i]=rowstart[i-1]+rowsize[i-1];
-    current=0;lastinresult=-1;
-    while(current<Terms){
-        rowA=smArray[current].row;
-        for (i=0;i<b.Cols;i++) temp[i]=0;
-            while(current<Terms&&smArray[current].row==rowA){
-                colA=smArray[current].col;
-                for(i=rowstart[colA];i<rowstart[colA+1];i++){
-                    colB=b.smArray[i].col;
-                    temp[colB]+=smArray[current].value*b.smArray[i].value;
-                }
-                current++;
-            }
-            for(i=0;i<b.Cols;i++)
-                if(temp[i]!=0){
-                    lastinresult++;
-                    result.smArray[lastinresult].row=rowA;
-                    result.smArray[lastinresult].col=i;
-                    result.smArray[lastinresult].value=temp[i];
-                }
-    }
-    result.Rows=Rows;result.Cols=b.Cols;
-    result.Terms=lastinresult+1;
-    delete []rowsize,[]rowstart,[]temp;
-    return result;
+void SparseMatrix<E>::Transpose(SparseMatrix<E>& B) {
+	int *rowSize = new int[Cols];       //ÁĞÔªËØÊıÊı×é
+	int *rowStart = new int[Cols];      //×ªÖÃÎ»ÖÃÊı×é
+	B.Rows = Cols;   B.Cols = Rows;
+	B.Terms = Terms;
+	if (Terms > 0) {
+		int i, j;
+		for (i = 0; i < Cols; i++) rowSize[i] = 0;
+		for (i = 0; i < Terms; i++)
+			rowSize[smArray[i].col]++; //Ô­¾ØÕó¸÷ÁĞ·ÇÁãÔªÊı£¡
+		rowStart[0] = 0;
+		for (i = 1; i < Cols; i++)
+			rowStart[i] = rowStart[i - 1] + rowSize[i - 1];
+		for (i = 0; i < Terms; i++) {
+			j = rowStart[smArray[i].col];
+			//µÚi¸ö·ÇÁãÔªÔÚ¾ØÕóBÖĞÓ¦·ÅµÄÎ»ÖÃ	
+			B.smArray[j].row = smArray[i].col;    //´«ËÍ
+			B.smArray[j].col = smArray[i].row;
+			B.smArray[j].value = smArray[i].value;
+			rowStart[smArray[i].col]++; //ĞŞ¸Ä¸ÃĞĞÓ¦·ÅÎ»ÖÃ
+		}
+	}
 }
 
+template <class E>
+void SparseMatrix<E>::Multiply(SparseMatrix<E>& b) {
+	SparseMatrix<E> result(Rows, b.Cols,Rows*b.Cols);
+	int* rowsize = new int[b.Rows];
+	int* rowstart = new int[b.Rows + 1];
+	E* temp = new E[b.Cols];
+	int i, current, lastinresult, rowA, colA, colB;
 
+	for (i = 0; i < b.Rows; i++) { rowsize[i] = 0; }
+
+	for (i = 0; i < b.Terms; i++) { rowsize[b.smArray[i].row]++; }
+
+	rowstart[0] = 0;
+	for (i = 1; i <= b.Rows; i++)
+		rowstart[i] = rowstart[i - 1] + rowsize[i - 1];
+
+	current = 0; lastinresult = -1;
+
+	while (current < Terms){
+		rowA = smArray[current].row;
+		for (i = 0; i < b.Cols; i++) temp[i] = 0;
+		while (current < Terms && smArray[current].row == rowA){
+			colA = smArray[current].col;
+			for (i = rowstart[colA]; i < rowstart[colA + 1]; i++){
+				colB = b.smArray[i].col;
+				temp[colB] += smArray[current].value*b.smArray[i].value;
+			}
+			current++;
+		}
+		for (i = 0; i < b.Cols; i++)
+			if (temp[i] != 0){
+				lastinresult++;
+				result.smArray[lastinresult].row = rowA;
+				result.smArray[lastinresult].col = i;
+				result.smArray[lastinresult].value = temp[i];
+			}
+	}
+	result.Rows = Rows; result.Cols = b.Cols;
+	result.Terms = lastinresult + 1;
+	delete []rowsize; delete []rowstart;delete []temp;
+	for (int j = 0; j<result.Terms; j++){
+		cout << result.smArray[j].row << ' '
+			<< result.smArray[j].col << ' '
+			<< result.smArray[j].value << ' '
+			<< endl;
+	}
+
+}
+
+	
